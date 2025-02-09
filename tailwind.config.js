@@ -5,7 +5,14 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        bebas: ['Bebas Neue', 'sans-serif'],
+        oswald: ['Oswald', 'sans-serif'],
+        syne: ['Syne', 'sans-serif'],
+        unna: ['Unna', 'serif'],
+      },
+    },
   },
   plugins: [],
 }
