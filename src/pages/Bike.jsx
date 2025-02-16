@@ -1,27 +1,29 @@
 import React, { useState, useRef } from "react";
 import { useJsApiLoader, StandaloneSearchBox } from "@react-google-maps/api";
+import Navbar from "../components/Navbar";
 import BikeCard from "../components/BikeCard";
-import bg from "../../public/bg/bg-accessories1.jpg";
-import g1 from '../../public/gear/1.avif'
-import g2 from '../../public/gear/2.jpg' 
-import g3 from '../../public/gear/3.avif'
-import g4 from '../../public/gear/4.jpg'
-import g5 from '../../public/gear/6.avif'
-const accessories = [
-  { name: "Royal Enfield", image: g1, rentPerDay: 1500,rating:4.5 },
-  { name: "KTM Duke 390", image: g2, rentPerDay: 1200 },
-  { name: "Yamaha R1", image: g3, rentPerDay: 1800 },
-  { name: "Honda CBR", image: g4, rentPerDay: 1000 },
-  { name: "Suzuki GSX-R1000", image: g5, rentPerDay: 2000 },
-  { name: "Royal Enfield", image: g1, rentPerDay: 1500 },
-  { name: "KTM Duke 390", image: g2, rentPerDay: 1200 },
-  { name: "Yamaha R1", image: g3, rentPerDay: 1800 },
-  { name: "Honda CBR", image: g4, rentPerDay: 1000 },
-  { name: "Suzuki GSX-R1000", image: g5, rentPerDay: 2000 },
+import bg from "../../public/bg/bgfinall.jpg";
+import s1 from "../../public/sports/1.jpg";
+import s2 from "../../public/sports/2.png";
+import s3 from "../../public/sports/3.jpg";
+import s4 from "../../public/sports/4.jpg";
+import s5 from "../../public/sports/5.png";
 
+const bikes = [
+  { name: "Royal Enfield", image: s1, rentPerDay: 1500 },
+  { name: "KTM Duke 390", image: s2, rentPerDay: 1200 },
+  { name: "Yamaha R1", image: s3, rentPerDay: 1800 },
+  { name: "Honda CBR", image: s4, rentPerDay: 1000 },
+  { name: "Suzuki GSX-R1000", image: s5, rentPerDay: 2000 },
+  
+  { name: "Royal Enfield", image: s1, rentPerDay: 1500 },
+  { name: "KTM Duke 390", image: s2, rentPerDay: 1200 },
+  { name: "Yamaha R1", image: s3, rentPerDay: 1800 },
+  { name: "Honda CBR", image: s4, rentPerDay: 1000 },
+  { name: "Suzuki GSX-R1000", image: s5, rentPerDay: 2000 },
 ];
 
-export default function Accessories() {
+export default function App() {
   const [priceRange, setPriceRange] = useState(2000);
   const [sortOrder, setSortOrder] = useState("lowToHigh");
   const [location, setLocation] = useState("");
@@ -40,7 +42,7 @@ export default function Accessories() {
     }
   };
 
-  const filteredBikes = accessories
+  const filteredBikes = bikes
     .filter((bike) => bike.rentPerDay <= priceRange)
     .sort((a, b) => (sortOrder === "lowToHigh" ? a.rentPerDay - b.rentPerDay : b.rentPerDay - a.rentPerDay));
 
