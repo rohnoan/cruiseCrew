@@ -7,24 +7,23 @@ import g2 from '../../public/gear/2.jpg'
 import g3 from '../../public/gear/3.avif'
 import g4 from '../../public/gear/4.jpg'
 import g5 from '../../public/gear/6.avif'
+
 const accessories = [
-  { name: "Royal Enfield", image: g1, rentPerDay: 1500,rating:4.5 },
-  { name: "KTM Duke 390", image: g2, rentPerDay: 1200 },
+  { name: "Royal Enfield", image: g1, rentPerDay: 1500 },
   { name: "Yamaha R1", image: g3, rentPerDay: 1800 },
-  { name: "Honda CBR", image: g4, rentPerDay: 1000 },
   { name: "Suzuki GSX-R1000", image: g5, rentPerDay: 2000 },
   { name: "Royal Enfield", image: g1, rentPerDay: 1500 },
-  { name: "KTM Duke 390", image: g2, rentPerDay: 1200 },
   { name: "Yamaha R1", image: g3, rentPerDay: 1800 },
-  { name: "Honda CBR", image: g4, rentPerDay: 1000 },
   { name: "Suzuki GSX-R1000", image: g5, rentPerDay: 2000 },
-
 ];
 
 export default function Accessories() {
+  const [searchQuery, setSearchQuery] = useState("");
   const [priceRange, setPriceRange] = useState(2000);
   const [sortOrder, setSortOrder] = useState("lowToHigh");
   const [location, setLocation] = useState("");
+  const [pickupDate, setPickupDate] = useState("");
+  const [dropoffDate, setDropoffDate] = useState("");
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLEMAPS_API_KEY,
@@ -41,38 +40,51 @@ export default function Accessories() {
   };
 
   const filteredBikes = accessories
-    .filter((bike) => bike.rentPerDay <= priceRange)
+    .filter((bike) =>
+      bike.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      bike.rentPerDay <= priceRange
+    )
     .sort((a, b) => (sortOrder === "lowToHigh" ? a.rentPerDay - b.rentPerDay : b.rentPerDay - a.rentPerDay));
 
   return (
     <div>
-     
-      <div className="relative justify-center flex flex-col    w-full  font-syne  lg:h-screen">
-        
+      <div className="relative justify-center flex flex-col w-full font-syne lg:h-screen">
         <img className="relative lg:absolute w-full h-full object-cover" src={bg} alt="Background" />
-        <div className="relative  flex lg:bg-inherit text-slate-800 lg:ml-20  justify-center flex-col backdrop-blur-sm lg:text-white shadow-2xl -10  p-8 rounded-lg lg:w-5/12 ">
-          
+        <div className="relative flex lg:bg-inherit text-slate-800 lg:ml-20 justify-center flex-col backdrop-blur-sm lg:text-white shadow-2xl p-8 rounded-lg lg:w-5/12">
           <div className="mb-2">
-            <label className="block font-semibold mb-1">Get Your Bike Now</label> 
-            <input type="text" placeholder="Search for a bike..." className="w-full p-3  text-gray-700 rounded-2xl focus:ring-2 border-[3px] border-black" />
+            <label className="block font-semibold mb-1">Get Your Bike Now</label>
+            <input
+              type="text"
+              placeholder="Search for a bike..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full p-3 text-gray-700 rounded-2xl focus:ring-2 border-[3px] border-black"
+            />
           </div>
           <div className="flex flex-row">
             <div className="mb-2 w-1/2 mr-2">
               <label className="block font-semibold mb-1">Pickup Date</label>
-              <input type="date" className="w-full p-3 text-gray-700 border-[3px] border-black rounded-2xl focus:ring-2 " />
+              <input
+                type="date"
+                value={pickupDate}
+                onChange={(e) => setPickupDate(e.target.value)}
+                className="w-full p-3 text-gray-700 border-[3px] border-black rounded-2xl focus:ring-2"
+              />
             </div>
             <div className="mb-2 ml-2 w-1/2">
               <label className="block font-semibold mb-1">Drop-off Date</label>
-              <input type="date" className="w-full p-3 border-[3px] border-black text-gray-700 rounded-2xl focus:ring-2" />
+              <input
+                type="date"
+                value={dropoffDate}
+                onChange={(e) => setDropoffDate(e.target.value)}
+                className="w-full p-3 border-[3px] border-black text-gray-700 rounded-2xl focus:ring-2"
+              />
             </div>
           </div>
           <div className="mb-2">
             <label className="block font-semibold mb-1">Location</label>
             {isLoaded ? (
-              <StandaloneSearchBox
-                onLoad={(ref) => (searchBoxRef.current = ref)}
-                onPlacesChanged={onPlacesChanged}
-              >
+              <StandaloneSearchBox onLoad={(ref) => (searchBoxRef.current = ref)} onPlacesChanged={onPlacesChanged}>
                 <input
                   type="text"
                   value={location}
@@ -95,9 +107,6 @@ export default function Accessories() {
               value={priceRange}
               onChange={(e) => setPriceRange(e.target.value)}
               className="w-full appearance-none h-2 bg-black rounded-2xl"
-              style={{
-                accentColor: "black",
-              }}
             />
           </div>
           <div className="text-gray-700 mb-2">
@@ -105,18 +114,15 @@ export default function Accessories() {
             <select
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value)}
-              className="w-full p-3 border-[3px] border-black  rounded-2xl focus:ring-2 "
+              className="w-full p-3 border-[3px] border-black rounded-2xl focus:ring-2"
             >
-              <option className="" value="lowToHigh">Low to High</option>
+              <option value="lowToHigh">Low to High</option>
               <option value="highToLow">High to Low</option>
             </select>
           </div>
-          <button className="w-full bg-black p-3 rounded-2xl text-white font-semibold hover:bg-gray-900">Search</button>
-      
         </div>
       </div>
       <div className="bg-white mt-20 min-h-screen">
-        
         <div className="flex flex-wrap justify-center">
           {filteredBikes.map((item, index) => (
             <div key={index} className="m-3">

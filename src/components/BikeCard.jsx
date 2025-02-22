@@ -48,7 +48,7 @@ export default function BikeCard({image,name,rent,rating}) {
           <span className="text-2xl">₹{rent}</span>
           <span className="text-sm text-gray-600">/day</span>
         </div>
-        <button className="rounded-md bg-stone-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-600 focus:outline-none focus:ring-2 focus:ring-stone-500 focus:ring-offset-2">
+        <button className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2">
           Rent Now
         </button>
       </div>
