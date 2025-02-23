@@ -15,7 +15,7 @@ export default function Navbar() {
   return (
     <nav className="bg-black text-white font-syne p-4">
       <div className="flex justify-between items-center max-w-6xl mx-auto">
-        <h1 className="text-xl font-bold">REVANA</h1>
+        <h1 className="text-xl font-bold">RIDE RENTALS</h1>
 
         {/* Desktop Menu */}
         <div className="hidden md:flex gap-6">

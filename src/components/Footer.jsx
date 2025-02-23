@@ -11,7 +11,7 @@ const footerLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-black text-white font-syne p-6 mt-12">
+    <footer className="bg-black text-white font-syne p-6">
       <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6 text-center md:text-left">
         {/* Brand Info */}
         <div>
@@ -55,9 +55,9 @@ export default function Footer() {
       <div className="border-t border-gray-700 mt-6 pt-4 text-center text-gray-500 text-sm">
         &copy; {new Date().getFullYear()} Revana. All Rights Reserved.
       </div>
-      <div className="border-t border-gray-700 mt-6 pt-4 text-center text-gray-500 text-sm">
+      {/* <div className="border-t border-gray-700 mt-6 pt-4 text-center text-gray-500 text-sm">
         with love rohnoan &lt;3
-      </div>
+      </div> */}
     </footer>
   );
 }

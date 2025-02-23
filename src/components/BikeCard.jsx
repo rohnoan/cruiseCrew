@@ -1,5 +1,12 @@
+import { useCart } from '../context/CartContext'
 
-export default function BikeCard({image,name,rent,rating}) {
+export default function BikeCard({ image, name, rent, rating }) {
+  const { addToCart } = useCart() // Get the addToCart function from context
+
+  const handleAddToCart = () => {
+    addToCart({ image, name, rent, rating }) // Add bike details to cart
+  }
+
   return (
     <div className="w-full max-w-sm overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg">
       {/* Image Container */}
@@ -7,8 +14,7 @@ export default function BikeCard({image,name,rent,rating}) {
         <div className="relative aspect-[4/3] w-full overflow-hidden">
           <img
             src={image}
-            alt="Mountain Bike"
-            fill
+            alt={name}
             className="object-cover transition-transform duration-300 hover:scale-105"
           />
         </div>
@@ -48,11 +54,13 @@ export default function BikeCard({image,name,rent,rating}) {
           <span className="text-2xl">₹{rent}</span>
           <span className="text-sm text-gray-600">/day</span>
         </div>
-        <button className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2">
+        <button
+          onClick={handleAddToCart}
+          className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-black focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+        >
           Add to Cart
         </button>
       </div>
     </div>
   )
 }
-
