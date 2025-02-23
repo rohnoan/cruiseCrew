@@ -8,8 +8,6 @@ import Seller from "./pages/SellerAccount";
 import Customer from "./pages/CustomerAccount";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import Learn from "./pages/Learn";
-import { h1 } from "motion/react-client";
 export default function App() {
   return (
     <>
