@@ -1,20 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useJsApiLoader, StandaloneSearchBox } from "@react-google-maps/api";
 import BikeCard from "../components/BikeCard";
+import { bikes } from "../services/api";
 import bg from "../../public/bg/bgfinall.jpg";
-import s1 from "../../public/sports/1.jpg";
-import s2 from "../../public/sports/2.png";
-import s3 from "../../public/sports/3.jpg";
-import s4 from "../../public/sports/4.jpg";
-import s5 from "../../public/sports/5.png";
-
-const bikes = [
-  { name: "Royal Enfield", image: s1, rentPerDay: 1500 },
-  { name: "KTM Duke 390", image: s2, rentPerDay: 1200 },
-  { name: "Yamaha R1", image: s3, rentPerDay: 1800 },
-  { name: "Honda CBR", image: s4, rentPerDay: 1000 },
-  { name: "Suzuki GSX-R1000", image: s5, rentPerDay: 2000 },
-];
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -23,6 +11,9 @@ export default function App() {
   const [location, setLocation] = useState("");
   const [pickupDate, setPickupDate] = useState("");
   const [dropoffDate, setDropoffDate] = useState("");
+  const [bikesList, setBikesList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLEMAPS_API_KEY,
@@ -31,6 +22,36 @@ export default function App() {
 
   const searchBoxRef = useRef(null);
 
+  useEffect(() => {
+    fetchBikes();
+  }, []);
+
+  const fetchBikes = async () => {
+    try {
+      setLoading(true);
+      const response = await bikes.getAll();
+      setBikesList(response.data);
+    } catch (err) {
+      setError("Failed to fetch bikes");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    try {
+      setLoading(true);
+      const response = await bikes.search(searchQuery);
+      setBikesList(response.data);
+    } catch (err) {
+      setError("Failed to search bikes");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const onPlacesChanged = () => {
     const places = searchBoxRef.current.getPlaces();
     if (places.length > 0) {
@@ -38,15 +59,11 @@ export default function App() {
     }
   };
 
-  // Filter bikes based on search query, price range, and sorting
-  const filteredBikes = bikes
-    .filter(
-      (bike) =>
-        bike.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        bike.rentPerDay <= priceRange
-    )
+  // Filter and sort bikes
+  const filteredBikes = bikesList
+    .filter((bike) => bike.price <= priceRange)
     .sort((a, b) =>
-      sortOrder === "lowToHigh" ? a.rentPerDay - b.rentPerDay : b.rentPerDay - a.rentPerDay
+      sortOrder === "lowToHigh" ? a.price - b.price : b.price - a.price
     );
 
   return (
@@ -62,10 +79,12 @@ export default function App() {
               placeholder="Search for a bike..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               className="w-full p-3 text-gray-700 rounded-2xl focus:ring-2 border-[3px] border-black"
             />
           </div>
-          {/* Pickup & Drop-off Date Inputs */}
+
+          {/* Date Inputs */}
           <div className="flex flex-row">
             <div className="mb-2 w-1/2 mr-2">
               <label className="block font-semibold mb-1">Pickup Date</label>
@@ -86,7 +105,8 @@ export default function App() {
               />
             </div>
           </div>
-          {/* Location Input using Google Places API */}
+
+          {/* Location Search */}
           <div className="mb-2">
             <label className="block font-semibold mb-1">Location</label>
             {isLoaded ? (
@@ -106,7 +126,8 @@ export default function App() {
               <p>Loading location search...</p>
             )}
           </div>
-          {/* Price Range Filter */}
+
+          {/* Price Range */}
           <div className="mb-2">
             <label className="block font-semibold mb-1">Price Range: ₹{priceRange}</label>
             <input
@@ -117,10 +138,10 @@ export default function App() {
               value={priceRange}
               onChange={(e) => setPriceRange(e.target.value)}
               className="w-full appearance-none h-2 bg-black rounded-2xl"
-              style={{ accentColor: "black" }}
             />
           </div>
-          {/* Sorting Options */}
+
+          {/* Sort Options */}
           <div className="text-gray-700 mb-2">
             <label className="block font-semibold text-white mb-1">Sort by Price</label>
             <select
@@ -132,20 +153,37 @@ export default function App() {
               <option value="highToLow">High to Low</option>
             </select>
           </div>
-          <button className="w-full bg-black p-3 rounded-2xl text-white font-semibold hover:bg-gray-900">
+
+          <button 
+            onClick={handleSearch}
+            className="w-full bg-black p-3 rounded-2xl text-white font-semibold hover:bg-gray-900"
+          >
             Search
           </button>
         </div>
       </div>
-      {/* Display Filtered Bikes */}
+
+      {/* Display Bikes */}
       <div className="bg-white mt-20 min-h-screen">
-        <div className="flex flex-wrap justify-center">
-          {filteredBikes.map((item, index) => (
-            <div key={index} className="m-3">
-              <BikeCard name={item.name} rent={item.rentPerDay} image={item.image} />
-            </div>
-          ))}
-        </div>
+        {error && (
+          <div className="text-red-500 text-center p-4">{error}</div>
+        )}
+        {loading ? (
+          <div className="text-center p-4">Loading bikes...</div>
+        ) : (
+          <div className="flex flex-wrap justify-center">
+            {filteredBikes.map((bike) => (
+              <div key={bike._id} className="m-3">
+                <BikeCard
+                  name={bike.name}
+                  rent={bike.price}
+                  image={bike.image}
+                  description={bike.description}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
