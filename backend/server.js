@@ -10,9 +10,8 @@ app.get('/products',(req,res)=>{
 })
 
 
-
-app.listen(5000,()=>{
+app.listen(5000, '0.0.0.0', () => {
     connectDB();
-    console.log('server started ')
-})
+    console.log('server started on port 5000');
+});
 

@@ -17,8 +17,24 @@ api.interceptors.request.use((config) => {
 });
 
 export const auth = {
-    login: (email, password) => api.post('/auth/login', { email, password }),
-    register: (userData) => api.post('/auth/register', userData),
+    login: async (credentials) => {
+        try {
+            const response = await axios.post(`${API_URL}/auth/login`, credentials);
+            return response;
+        } catch (error) {
+            console.error('Login error:', error.response?.data || error.message);
+            throw error;
+        }
+    },
+    register: async (userData) => {
+        try {
+            const response = await axios.post(`${API_URL}/auth/register`, userData);
+            return response;
+        } catch (error) {
+            console.error('Register error:', error.response?.data || error.message);
+            throw error;
+        }
+    }
 };
 
 export const bikes = {
@@ -27,6 +43,14 @@ export const bikes = {
     create: (bikeData) => api.post('/bikes', bikeData),
     update: (id, bikeData) => api.put(`/bikes/${id}`, bikeData),
     delete: (id) => api.delete(`/bikes/${id}`),
+};
+
+export const accessories = {
+    getAll: () => api.get('/accessories'),
+    search: (query) => api.get(`/accessories/search?q=${query}`),
+    create: (accessoryData) => api.post('/accessories', accessoryData),
+    update: (id, accessoryData) => api.put(`/accessories/${id}`, accessoryData),
+    delete: (id) => api.delete(`/accessories/${id}`),
 };
 
 export default api; 
