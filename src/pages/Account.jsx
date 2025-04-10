@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../services/api';
 import bg from "../../public/bg/bgaccounts.jpg";
+import { useAuth } from '../context/AuthContext';
 
 export default function Account() {
     const [isLogin, setIsLogin] = useState(true);
@@ -14,6 +15,7 @@ export default function Account() {
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     // Validation functions
     const validateEmail = (email) => {
@@ -91,7 +93,7 @@ export default function Account() {
                 
                 if (response.data.token) {
                     localStorage.setItem('token', response.data.token);
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                    login(response.data.user);
                     navigate(response.data.user.role === 'seller' ? '/seller' : '/customer');
                 }
             } else {
@@ -105,7 +107,7 @@ export default function Account() {
                 
                 if (response.data.token) {
                     localStorage.setItem('token', response.data.token);
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                    login(response.data.user);
                     navigate(response.data.user.role === 'seller' ? '/seller' : '/customer');
                 }
             }

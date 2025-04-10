@@ -39,7 +39,7 @@ export default function SellerAccount() {
   const fetchSellerBikes = async () => {
     try {
       setLoading(true);
-      const response = await bikes.getAll();
+      const response = await bikes.getSellerBikes();
       setSellerBikes(response.data);
     } catch (err) {
       setError("Failed to fetch bikes");

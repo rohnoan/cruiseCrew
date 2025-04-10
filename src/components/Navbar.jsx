@@ -1,16 +1,27 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react"; // Icons for menu
+import { Link, useNavigate } from "react-router-dom";
+import { Menu, X, User } from "lucide-react"; // Icons for menu and User icon
+import { useAuth } from '../context/AuthContext';
 
 const navItems = [
   { name: "BIKES", link: "/bikes", id: 1 },
   { name: "ACCESSORIES", link: "/accessories", id: 2 },
   { name: "CART", link: "/cart", id: 3 },
-  { name: "ACCOUNT", link: "/account", id: 4 },
 ];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/account');
+  };
+
+  const handleLogin = () => {
+    navigate('/account');
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-black text-white font-syne p-4 z-[9999]">
@@ -21,7 +32,7 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex gap-6 z-[9999]">
+        <div className="hidden md:flex items-center gap-6 z-[9999]">
           {navItems.map((item) => (
             <Link
               key={item.id}
@@ -31,6 +42,38 @@ export default function Navbar() {
               {item.name}
             </Link>
           ))}
+
+          {/* Modified User Profile/Login Button */}
+          {user ? (
+            <div className="relative group">
+              <button className="flex items-center gap-2 font-bold p-2 hover:scale-110 transition-transform">
+                <User size={20} />
+                <span>{user.username}</span>
+              </button>
+              {/* Modified dropdown menu with better hover behavior */}
+              <div className="absolute right-0 mt-2 w-48 bg-black rounded-lg shadow-lg py-2 invisible group-hover:visible hover:visible transition-all duration-300 opacity-0 group-hover:opacity-100">
+                <Link
+                  to={user.role === 'seller' ? '/seller' : '/customer'}
+                  className="block px-4 py-2 hover:bg-gray-700 transition-colors duration-200"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-700 text-red-400 transition-colors duration-200"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={handleLogin}
+              className="font-bold p-2 hover:scale-110 transition-transform bg-white text-black rounded-lg px-4"
+            >
+              Login
+            </button>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -54,6 +97,37 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
+            {/* Mobile User Profile/Login */}
+            {user ? (
+              <>
+                <Link
+                  to={user.role === 'seller' ? '/seller' : '/customer'}
+                  className="w-full text-center p-2 hover:bg-gray-700 rounded"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {user.username}'s Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMenuOpen(false);
+                  }}
+                  className="w-full text-center p-2 hover:bg-gray-700 rounded text-red-400"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  handleLogin();
+                  setMenuOpen(false);
+                }}
+                className="w-full text-center p-2 bg-white text-black rounded"
+              >
+                Login
+              </button>
+            )}
           </div>
         )}
       </div>
