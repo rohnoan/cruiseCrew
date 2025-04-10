@@ -1,14 +1,25 @@
 import { useCart } from '../context/CartContext'
+import { useState } from 'react';
 
 export default function BikeCard({ image, name, rent, rating }) {
-  const { addToCart } = useCart() // Get the addToCart function from context
+  const { addToCart } = useCart();
+  const [showPopup, setShowPopup] = useState(false);
 
   const handleAddToCart = () => {
-    addToCart({ image, name, rent, rating }) // Add bike details to cart
-  }
+    addToCart({ image, name, rent, rating });
+    setShowPopup(true);
+    setTimeout(() => setShowPopup(false), 2000);
+  };
 
   return (
-    <div className="w-full max-w-sm overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg">
+    <div className="relative w-full max-w-sm overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg">
+      {/* Popup */}
+      {showPopup && (
+        <div className="absolute top-2 right-2 bg-black text-white px-3 py-1 rounded shadow-md text-sm z-10">
+          1 item added to cart
+        </div>
+      )}
+
       {/* Image Container */}
       <div className="relative">
         <div className="relative aspect-[4/3] w-full overflow-hidden">
@@ -62,5 +73,5 @@ export default function BikeCard({ image, name, rent, rating }) {
         </button>
       </div>
     </div>
-  )
+  );
 }
