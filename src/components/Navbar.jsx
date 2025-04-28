@@ -50,10 +50,9 @@ export default function Navbar() {
                 <User size={20} />
                 <span>{user.username}</span>
               </button>
-              {/* Modified dropdown menu with better hover behavior */}
               <div className="absolute right-0 mt-2 w-48 bg-black rounded-lg shadow-lg py-2 invisible group-hover:visible hover:visible transition-all duration-300 opacity-0 group-hover:opacity-100">
                 <Link
-                  to={user.role === 'renter' ? '/seller' : '/customer'}
+                  to={user.role === 'renter' ? '/renter' : '/customer'}
                   className="block px-4 py-2 hover:bg-gray-700 transition-colors duration-200"
                 >
                   Dashboard
@@ -101,7 +100,7 @@ export default function Navbar() {
             {user ? (
               <>
                 <Link
-                  to={user.role === 'renter' ? '/seller' : '/customer'}
+                  to={user.role === 'renter' ? '/renter' : '/customer'}
                   className="w-full text-center p-2 hover:bg-gray-700 rounded"
                   onClick={() => setMenuOpen(false)}
                 >

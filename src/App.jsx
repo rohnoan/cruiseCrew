@@ -20,7 +20,7 @@ export default function App() {
           <Route path="/accessories" element={<Accessories />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/account/*" element={<Account />} />
-          <Route path="/seller" element={<Seller />} />
+          <Route path="/renter" element={<Seller />} />
           <Route path="/customer" element={<Customer />} />
           <Route path="*" element={<h1 className="flex align-middle items-center justify-center text-[100px] font-mono">404</h1>} />
         </Routes>

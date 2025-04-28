@@ -94,7 +94,7 @@ export default function Account() {
                 if (response.data.token) {
                     localStorage.setItem('token', response.data.token);
                     login(response.data.user);
-                    navigate(response.data.user.role === 'seller' ? '/seller' : '/customer');
+                    navigate(response.data.user.role === 'renter' ? '/renter' : '/customer');
                 }
             } else {
                 // Register
@@ -108,7 +108,7 @@ export default function Account() {
                 if (response.data.token) {
                     localStorage.setItem('token', response.data.token);
                     login(response.data.user);
-                    navigate(response.data.user.role === 'seller' ? '/seller' : '/customer');
+                    navigate(response.data.user.role === 'renter' ? '/renter' : '/customer');
                 }
             }
         } catch (err) {
