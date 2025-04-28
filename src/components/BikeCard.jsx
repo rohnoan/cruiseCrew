@@ -19,7 +19,6 @@ export default function BikeCard({ image, name, rent, rating }) {
     addToCart({ image, name, rent, rating }) // Add bike details to cart
     setShowToast(true)
   }
-
   return (
     <>
       <div className="w-full max-w-sm overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-lg">
