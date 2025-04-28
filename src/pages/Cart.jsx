@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import Receipt from '../components/Receipt';
 import bg from "../../public/bg/bgcart.jpg";
+import { X } from 'lucide-react';
 
 export default function Cart() {
-  const { cart } = useCart();
+  const { cart, removeFromCart } = useCart();
   const [showReceipt, setShowReceipt] = useState(false);
   const [orderDetails, setOrderDetails] = useState({
     pickupDate: '',
@@ -14,6 +15,10 @@ export default function Cart() {
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
 
   const totalAmount = cart.reduce((total, item) => total + item.rent, 0);
+
+  const handleRemoveItem = (index) => {
+    removeFromCart(index);
+  };
 
   const handleCheckout = (e) => {
     e.preventDefault();
@@ -31,12 +36,20 @@ export default function Cart() {
           <>
             <ul className="mb-6 space-y-4">
               {cart.map((item, index) => (
-                <li key={index} className="flex items-center p-3 border-b border-black font-semibold">
-                  <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg mr-4" />
-                  <div>
-                    <p className="text-lg">{item.name}</p>
-                    <p className="text-gray-700">₹{item.rent}/day</p>
+                <li key={index} className="flex items-center justify-between p-3 border-b border-black font-semibold">
+                  <div className="flex items-center">
+                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg mr-4" />
+                    <div>
+                      <p className="text-lg">{item.name}</p>
+                      <p className="text-gray-700">₹{item.rent}/day</p>
+                    </div>
                   </div>
+                  <button
+                    onClick={() => handleRemoveItem(index)}
+                    className="text-red-500 hover:text-red-700 p-2 transition-colors duration-200"
+                  >
+                    <X size={20} />
+                  </button>
                 </li>
               ))}
             </ul>

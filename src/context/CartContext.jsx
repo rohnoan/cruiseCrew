@@ -13,8 +13,8 @@ export const CartProvider = ({ children }) => {
     };
 
     // Function to remove items from the cart
-    const removeFromCart = (id) => {
-        setCart((prevCart) => prevCart.filter(item => item.id !== id));
+    const removeFromCart = (index) => {
+        setCart((prevCart) => prevCart.filter((_, i) => i !== index));
     };
 
     return (

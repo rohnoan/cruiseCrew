@@ -58,6 +58,9 @@ export const bikes = {
         return await axios.delete(`${API_URL}/bikes/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
+    },
+    search: async (query) => {
+        return await axios.get(`${API_URL}/bikes/search?q=${query}`);
     }
 };
 

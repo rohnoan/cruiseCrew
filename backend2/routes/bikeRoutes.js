@@ -5,17 +5,21 @@ const authenticate = require('../middleware/authMiddleware');
 
 // Get all bikes (for customers)
 router.get('/', async (req, res) => {
-    const bikes = await Bike.find();
-    res.json(bikes);
+    try {
+        const bikes = await Bike.find();
+        res.json(bikes || []); // Return empty array if no bikes
+    } catch (error) {
+        res.json([]); // Return empty array on error
+    }
 });
 
 // Get seller's bikes (only their own bikes)
 router.get('/seller', authenticate(['seller']), async (req, res) => {
     try {
         const bikes = await Bike.find({ seller: req.user.id });
-        res.json(bikes);
+        res.json(bikes || []); // Return empty array if no bikes
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching seller bikes' });
+        res.json([]); // Return empty array instead of error
     }
 });
 

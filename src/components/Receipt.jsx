@@ -1,88 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function Receipt({ items, totalAmount, onClose, orderDetails }) {
-  const today = new Date();
-  const orderNumber = Math.random().toString(36).substr(2, 9).toUpperCase();
+export default function Receipt({ items, orderDetails, onClose }) {
+  const [totalDays, setTotalDays] = useState(0);
+  const [totalAmount, setTotalAmount] = useState(0);
+
+  useEffect(() => {
+    if (orderDetails.pickupDate && orderDetails.dropoffDate) {
+      const pickup = new Date(orderDetails.pickupDate);
+      const dropoff = new Date(orderDetails.dropoffDate);
+      const days = Math.ceil((dropoff - pickup) / (1000 * 60 * 60 * 24));
+      setTotalDays(days);
+
+      // Calculate total amount for all items multiplied by days
+      const amount = items.reduce((total, item) => total + (item.rent * days), 0);
+      setTotalAmount(amount);
+    }
+  }, [items, orderDetails]);
 
   const handlePrint = () => {
     window.print();
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 print:p-0">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-8 print:shadow-none print:p-4">
-        {/* Receipt Header */}
-        <div className="text-center border-b pb-4 mb-4">
-          <h2 className="text-3xl font-bold text-gray-800">RIDE RENTALS</h2>
-          <p className="text-gray-600">Order Receipt</p>
-          <p className="text-sm text-gray-500">Order #: {orderNumber}</p>
-          <p className="text-sm text-gray-500">
-            Date: {today.toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </p>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full">
+        <h2 className="text-2xl font-bold mb-4">Rental Receipt</h2>
+        
+        <div className="mb-4">
+          <p><strong>Pickup Date:</strong> {orderDetails.pickupDate}</p>
+          <p><strong>Drop-off Date:</strong> {orderDetails.dropoffDate}</p>
+          <p><strong>Total Days:</strong> {totalDays}</p>
+          <p><strong>Location:</strong> {orderDetails.location}</p>
         </div>
 
-        {/* Customer Details */}
-        <div className="mb-6">
-          <h3 className="font-semibold mb-2">Rental Details:</h3>
-          <p>Pickup Date: {orderDetails?.pickupDate || 'Not specified'}</p>
-          <p>Drop-off Date: {orderDetails?.dropoffDate || 'Not specified'}</p>
-          <p>Location: {orderDetails?.location || 'Not specified'}</p>
+        <div className="border-t border-b py-4 my-4">
+          {items.map((item, index) => (
+            <div key={index} className="flex justify-between mb-2">
+              <span>{item.name}</span>
+              <span>₹{item.rent} × {totalDays} days = ₹{item.rent * totalDays}</span>
+            </div>
+          ))}
         </div>
 
-        {/* Items Table */}
-        <table className="w-full mb-6">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left py-2">Item</th>
-              <th className="text-right py-2">Price/Day</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item, index) => (
-              <tr key={index} className="border-b">
-                <td className="py-2">{item.name}</td>
-                <td className="text-right py-2">₹{item.rent}</td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="font-bold">
-              <td className="py-2">Total Amount</td>
-              <td className="text-right py-2">₹{totalAmount}</td>
-            </tr>
-          </tfoot>
-        </table>
-
-        {/* Terms and Conditions */}
-        <div className="text-xs text-gray-500 mb-6">
-          <p className="mb-2">Terms and Conditions:</p>
-          <ul className="list-disc pl-4">
-            <li>Security deposit will be refunded after bike inspection</li>
-            <li>Please return the bike in the same condition</li>
-            <li>Fuel charges are not included in the rental price</li>
-            <li>Valid ID proof is required at the time of pickup</li>
-          </ul>
+        <div className="text-xl font-bold">
+          Total Amount: ₹{totalAmount}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end space-x-4 print:hidden">
-          <button
-            onClick={handlePrint}
-            className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800"
-          >
-            Print Receipt
-          </button>
-          <button
-            onClick={onClose}
-            className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
-          >
-            Close
-          </button>
-        </div>
+        <button
+          onClick={onClose}
+          className="mt-4 w-full bg-black text-white p-3 rounded-lg hover:bg-gray-900"
+        >
+          Close
+        </button>
       </div>
     </div>
   );

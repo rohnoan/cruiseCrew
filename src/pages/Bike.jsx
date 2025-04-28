@@ -42,8 +42,13 @@ export default function App() {
   const handleSearch = async () => {
     try {
       setLoading(true);
-      const response = await bikes.search(searchQuery);
-      setBikesList(response.data);
+      if (searchQuery.trim() === '') {
+        // If search query is empty, fetch all bikes
+        await fetchBikes();
+      } else {
+        const response = await bikes.search(searchQuery);
+        setBikesList(response.data);
+      }
     } catch (err) {
       setError("Failed to search bikes");
       console.error(err);
@@ -79,7 +84,7 @@ export default function App() {
               placeholder="Search for a bike..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               className="w-full p-3 text-gray-700 rounded-2xl focus:ring-2 border-[3px] border-black"
             />
           </div>
