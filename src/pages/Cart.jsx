@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import Receipt from '../components/Receipt';
 import bg from "../../public/bg/bgcart.jpg";
-import { X } from 'lucide-react';
+import { X, Printer } from 'lucide-react';
 
 export default function Cart() {
   const { cart, removeFromCart, clearCart } = useCart();
@@ -16,7 +16,9 @@ export default function Cart() {
 
   const today = new Date().toISOString().split('T')[0];
 
-  const totalAmount = cart.reduce((total, item) => total + item.rent, 0);
+  const calculateTotalAmount = (days) => {
+    return cart.reduce((total, item) => total + (item.rent * days), 0);
+  };
 
   const handleRemoveItem = (index) => {
     removeFromCart(index);
@@ -51,7 +53,7 @@ export default function Cart() {
       const pickupDate = new Date(orderDetails.pickupDate);
       const dropoffDate = new Date(orderDetails.dropoffDate);
       const totalDays = Math.ceil((dropoffDate - pickupDate) / (1000 * 60 * 60 * 24));
-      const totalAmount = cart.reduce((total, item) => total + (item.rent * totalDays), 0);
+      const totalAmount = calculateTotalAmount(totalDays);
       
       setShowReceipt(true);
     }
@@ -60,6 +62,10 @@ export default function Cart() {
   const handleCloseReceipt = () => {
     setShowReceipt(false);
     clearCart();
+  };
+
+  const handlePrintReceipt = () => {
+    window.print();
   };
 
   return (
@@ -89,7 +95,6 @@ export default function Cart() {
                 </li>
               ))}
             </ul>
-            <h3 className="text-2xl font-semibold mb-4">Total: ₹{totalAmount}</h3>
             
             <form onSubmit={handleCheckout} className="space-y-4">
               <div>
@@ -144,9 +149,10 @@ export default function Cart() {
       {showReceipt && (
         <Receipt
           items={cart}
-          totalAmount={totalAmount}
+          totalAmount={calculateTotalAmount(Math.ceil((new Date(orderDetails.dropoffDate) - new Date(orderDetails.pickupDate)) / (1000 * 60 * 60 * 24)))}
           orderDetails={orderDetails}
           onClose={handleCloseReceipt}
+          onPrint={handlePrintReceipt}
         />
       )}
     </div>
