@@ -1,18 +1,20 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import Receipt from '../components/Receipt';
 import bg from "../../public/bg/bgcart.jpg";
 import { X } from 'lucide-react';
 
 export default function Cart() {
-  const { cart, removeFromCart } = useCart();
+  const { cart, removeFromCart, clearCart } = useCart();
   const [showReceipt, setShowReceipt] = useState(false);
   const [orderDetails, setOrderDetails] = useState({
     pickupDate: '',
     dropoffDate: '',
     location: ''
   });
-  const [showCheckoutForm, setShowCheckoutForm] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const today = new Date().toISOString().split('T')[0];
 
   const totalAmount = cart.reduce((total, item) => total + item.rent, 0);
 
@@ -20,10 +22,44 @@ export default function Cart() {
     removeFromCart(index);
   };
 
+  const validateDates = () => {
+    const newErrors = {};
+    const pickupDate = new Date(orderDetails.pickupDate);
+    const dropoffDate = new Date(orderDetails.dropoffDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (!orderDetails.pickupDate) {
+      newErrors.pickupDate = 'Pickup date is required';
+    } else if (pickupDate < today) {
+      newErrors.pickupDate = 'Pickup date cannot be in the past';
+    }
+
+    if (!orderDetails.dropoffDate) {
+      newErrors.dropoffDate = 'Drop-off date is required';
+    } else if (dropoffDate <= pickupDate) {
+      newErrors.dropoffDate = 'Drop-off date must be after pickup date';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleCheckout = (e) => {
     e.preventDefault();
-    setShowReceipt(true);
-    setShowCheckoutForm(false);
+    if (validateDates()) {
+      const pickupDate = new Date(orderDetails.pickupDate);
+      const dropoffDate = new Date(orderDetails.dropoffDate);
+      const totalDays = Math.ceil((dropoffDate - pickupDate) / (1000 * 60 * 60 * 24));
+      const totalAmount = cart.reduce((total, item) => total + (item.rent * totalDays), 0);
+      
+      setShowReceipt(true);
+    }
+  };
+
+  const handleCloseReceipt = () => {
+    setShowReceipt(false);
+    clearCart();
   };
 
   return (
@@ -55,54 +91,49 @@ export default function Cart() {
             </ul>
             <h3 className="text-2xl font-semibold mb-4">Total: ₹{totalAmount}</h3>
             
-            {!showCheckoutForm ? (
-              <button 
-                onClick={() => setShowCheckoutForm(true)}
-                className="w-full bg-black p-3 rounded-2xl text-white font-semibold hover:bg-gray-900"
+            <form onSubmit={handleCheckout} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Pickup Date</label>
+                <input
+                  type="date"
+                  min={today}
+                  value={orderDetails.pickupDate}
+                  onChange={(e) => setOrderDetails({...orderDetails, pickupDate: e.target.value})}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+                {errors.pickupDate && <p className="text-red-500 text-sm mt-1">{errors.pickupDate}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Drop-off Date</label>
+                <input
+                  type="date"
+                  min={orderDetails.pickupDate || today}
+                  value={orderDetails.dropoffDate}
+                  onChange={(e) => setOrderDetails({...orderDetails, dropoffDate: e.target.value})}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+                {errors.dropoffDate && <p className="text-red-500 text-sm mt-1">{errors.dropoffDate}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Location</label>
+                <input
+                  type="text"
+                  value={orderDetails.location}
+                  onChange={(e) => setOrderDetails({...orderDetails, location: e.target.value})}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800"
               >
-                Proceed to Checkout
+                Checkout
               </button>
-            ) : (
-              <form onSubmit={handleCheckout} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Pickup Date</label>
-                  <input
-                    type="date"
-                    required
-                    className="w-full p-3 border border-gray-300 rounded-xl"
-                    value={orderDetails.pickupDate}
-                    onChange={(e) => setOrderDetails({...orderDetails, pickupDate: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Drop-off Date</label>
-                  <input
-                    type="date"
-                    required
-                    className="w-full p-3 border border-gray-300 rounded-xl"
-                    value={orderDetails.dropoffDate}
-                    onChange={(e) => setOrderDetails({...orderDetails, dropoffDate: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Pickup Location</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Enter pickup location"
-                    className="w-full p-3 border border-gray-300 rounded-xl"
-                    value={orderDetails.location}
-                    onChange={(e) => setOrderDetails({...orderDetails, location: e.target.value})}
-                  />
-                </div>
-                <button 
-                  type="submit"
-                  className="w-full bg-black p-3 rounded-2xl text-white font-semibold hover:bg-gray-900"
-                >
-                  Complete Checkout
-                </button>
-              </form>
-            )}
+            </form>
           </>
         ) : (
           <p className="text-gray-600">Your cart is empty.</p>
@@ -115,7 +146,7 @@ export default function Cart() {
           items={cart}
           totalAmount={totalAmount}
           orderDetails={orderDetails}
-          onClose={() => setShowReceipt(false)}
+          onClose={handleCloseReceipt}
         />
       )}
     </div>
