@@ -1,87 +1,71 @@
 import React from 'react';
+import { Printer, X } from 'lucide-react';
 
-export default function Receipt({ items, totalAmount, onClose, orderDetails }) {
-  const today = new Date();
-  const orderNumber = Math.random().toString(36).substr(2, 9).toUpperCase();
-
-  const handlePrint = () => {
-    window.print();
+export default function Receipt({ items, totalAmount, orderDetails, onClose, onPrint }) {
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
+  const totalDays = Math.ceil((new Date(orderDetails.dropoffDate) - new Date(orderDetails.pickupDate)) / (1000 * 60 * 60 * 24));
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 print:p-0">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-8 print:shadow-none print:p-4">
-        {/* Receipt Header */}
-        <div className="text-center border-b pb-4 mb-4">
-          <h2 className="text-3xl font-bold text-gray-800">RIDE RENTALS</h2>
-          <p className="text-gray-600">Order Receipt</p>
-          <p className="text-sm text-gray-500">Order #: {orderNumber}</p>
-          <p className="text-sm text-gray-500">
-            Date: {today.toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </p>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg max-w-md w-full mx-4 print:shadow-none print:border print:border-gray-300">
+        <div className="flex justify-between items-center mb-6 print:hidden">
+          <h2 className="text-2xl font-bold">Order Receipt</h2>
+          <div className="flex gap-2">
+            <button
+              onClick={onPrint}
+              className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"
+              title="Print Receipt"
+            >
+              <Printer size={20} />
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"
+              title="Close"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
-
-        {/* Customer Details */}
+        
         <div className="mb-6">
-          <h3 className="font-semibold mb-2">Rental Details:</h3>
-          <p>Pickup Date: {orderDetails?.pickupDate || 'Not specified'}</p>
-          <p>Drop-off Date: {orderDetails?.dropoffDate || 'Not specified'}</p>
-          <p>Location: {orderDetails?.location || 'Not specified'}</p>
+          <h3 className="font-semibold mb-2">Order Details:</h3>
+          <p>Pickup Date: {formatDate(orderDetails.pickupDate)}</p>
+          <p>Drop-off Date: {formatDate(orderDetails.dropoffDate)}</p>
+          <p>Rental Duration: {totalDays} days</p>
+          <p>Location: {orderDetails.location}</p>
         </div>
 
-        {/* Items Table */}
-        <table className="w-full mb-6">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left py-2">Item</th>
-              <th className="text-right py-2">Price/Day</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item, index) => (
-              <tr key={index} className="border-b">
-                <td className="py-2">{item.name}</td>
-                <td className="text-right py-2">₹{item.rent}</td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="font-bold">
-              <td className="py-2">Total Amount</td>
-              <td className="text-right py-2">₹{totalAmount}</td>
-            </tr>
-          </tfoot>
-        </table>
-
-        {/* Terms and Conditions */}
-        <div className="text-xs text-gray-500 mb-6">
-          <p className="mb-2">Terms and Conditions:</p>
-          <ul className="list-disc pl-4">
-            <li>Security deposit will be refunded after bike inspection</li>
-            <li>Please return the bike in the same condition</li>
-            <li>Fuel charges are not included in the rental price</li>
-            <li>Valid ID proof is required at the time of pickup</li>
-          </ul>
+        <div className="mb-6">
+          <h3 className="font-semibold mb-2">Items:</h3>
+          {items.map((item, index) => (
+            <div key={index} className="flex justify-between mb-2">
+              <div>
+                <span className="font-medium">{item.name}</span>
+                <p className="text-sm text-gray-600">₹{item.rent}/day × {totalDays} days</p>
+              </div>
+              <span className="font-medium">₹{item.rent * totalDays}</span>
+            </div>
+          ))}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end space-x-4 print:hidden">
-          <button
-            onClick={handlePrint}
-            className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800"
-          >
-            Print Receipt
-          </button>
-          <button
-            onClick={onClose}
-            className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
-          >
-            Close
-          </button>
+        <div className="border-t pt-4 mb-6">
+          <div className="flex justify-between font-bold text-lg">
+            <span>Total Amount:</span>
+            <span>₹{totalAmount}</span>
+          </div>
+        </div>
+
+        <div className="text-center text-sm text-gray-500 print:hidden">
+          <p>Thank you for your order!</p>
+          <p>Please keep this receipt for your records.</p>
         </div>
       </div>
     </div>

@@ -49,8 +49,10 @@ export const bikes = {
     },
     create: async (bikeData) => {
         const token = localStorage.getItem('token');
-        return await axios.post(`${API_URL}/bikes`, bikeData, {
-            headers: { Authorization: `Bearer ${token}` }
+        return axios.post(`${API_URL}/bikes`, bikeData, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         });
     },
     delete: async (id) => {
@@ -58,15 +60,40 @@ export const bikes = {
         return await axios.delete(`${API_URL}/bikes/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
+    },
+    search: async (query) => {
+        return await axios.get(`${API_URL}/bikes/search?q=${query}`);
     }
 };
 
 export const accessories = {
-    getAll: () => api.get('/accessories'),
+    create: async (accessoryData) => {
+        const token = localStorage.getItem('token');
+        return axios.post(`${API_URL}/accessories`, accessoryData, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+    },
+    getAll: async () => {
+        return axios.get(`${API_URL}/accessories`);
+    },
+    delete: async (id) => {
+        const token = localStorage.getItem('token');
+        return axios.delete(`${API_URL}/accessories/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+    },
     search: (query) => api.get(`/accessories/search?q=${query}`),
-    create: (accessoryData) => api.post('/accessories', accessoryData),
     update: (id, accessoryData) => api.put(`/accessories/${id}`, accessoryData),
-    delete: (id) => api.delete(`/accessories/${id}`),
+    getRenterAccessories: async () => {
+        const token = localStorage.getItem('token');
+        return axios.get(`${API_URL}/accessories/seller`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+    },
 };
 
 export default api; 

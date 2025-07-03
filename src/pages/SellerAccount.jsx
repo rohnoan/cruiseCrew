@@ -40,10 +40,10 @@ export default function SellerAccount() {
     try {
       setLoading(true);
       const response = await bikes.getSellerBikes();
-      setSellerBikes(response.data);
+      setSellerBikes(response.data || []);
     } catch (err) {
-      setError("Failed to fetch bikes");
-      console.error(err);
+      setSellerBikes([]);
+      console.log("No bikes found - You can add your first bike!");
     } finally {
       setLoading(false);
     }
@@ -52,11 +52,11 @@ export default function SellerAccount() {
   const fetchSellerAccessories = async () => {
     try {
       setLoading(true);
-      const response = await accessories.getAll();
-      setSellerAccessories(response.data);
+      const response = await accessories.getRenterAccessories();
+      setSellerAccessories(response.data || []);
     } catch (err) {
-      setError("Failed to fetch accessories");
-      console.error(err);
+      setSellerAccessories([]);
+      console.log("No accessories found - You can add your first accessory!");
     } finally {
       setLoading(false);
     }
@@ -65,36 +65,58 @@ export default function SellerAccount() {
   const handleAddBike = async (e) => {
     e.preventDefault();
     try {
-      await bikes.create(newBike);
-      fetchSellerBikes();
-      setNewBike({
-        name: "",
-        description: "",
-        price: "",
-        category: "",
-        image: ""
-      });
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError("Not authenticated. Please login again.");
+            return;
+        }
+
+        const response = await bikes.create(newBike);
+        console.log('Bike creation response:', response); // Add this for debugging
+        
+        if (response.data) {
+            fetchSellerBikes();
+            setNewBike({
+                name: "",
+                description: "",
+                price: "",
+                category: "",
+                image: ""
+            });
+            setError(""); // Clear any existing errors
+        }
     } catch (err) {
-      setError("Failed to add bike");
-      console.error(err);
+        console.error('Error adding bike:', err);
+        setError(err.response?.data?.message || "Failed to add bike. Please try again.");
     }
   };
 
   const handleAddAccessory = async (e) => {
     e.preventDefault();
     try {
-      await accessories.create(newAccessory);
-      fetchSellerAccessories();
-      setNewAccessory({
-        name: "",
-        description: "",
-        price: "",
-        category: "",
-        image: ""
-      });
+        const token = localStorage.getItem('token');
+        if (!token) {
+            setError("Not authenticated. Please login again.");
+            return;
+        }
+
+        const response = await accessories.create(newAccessory);
+        console.log('Accessory creation response:', response); // Add this for debugging
+        
+        if (response.data) {
+            fetchSellerAccessories();
+            setNewAccessory({
+                name: "",
+                description: "",
+                price: "",
+                category: "",
+                image: ""
+            });
+            setError(""); // Clear any existing errors
+        }
     } catch (err) {
-      setError("Failed to add accessory");
-      console.error(err);
+        console.error('Error adding accessory:', err);
+        setError(err.response?.data?.message || "Failed to add accessory. Please try again.");
     }
   };
 
@@ -139,7 +161,7 @@ export default function SellerAccount() {
         <div className="flex flex-col md:flex-row min-h-screen">
           {/* Sidebar */}
           <div className="md:w-64 bg-black bg-opacity-70 text-white p-6">
-            <h2 className="text-2xl font-bold mb-6">Seller Dashboard</h2>
+            <h2 className="text-2xl font-bold mb-6">Renter Dashboard</h2>
             <nav className="space-y-2">
               {["bikes", "accessories", "orders", "settings"].map((tab) => (
                 <button
@@ -230,29 +252,36 @@ export default function SellerAccount() {
                         <p>Loading bikes...</p>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {sellerBikes.map((bike) => (
-                            <div
-                              key={bike._id}
-                              className="bg-white p-4 rounded-lg shadow border border-gray-200"
-                            >
-                              <img
-                                src={bike.image}
-                                alt={bike.name}
-                                className="w-full h-48 object-cover rounded-lg mb-4"
-                              />
-                              <h4 className="font-semibold text-lg">{bike.name}</h4>
-                              <p className="text-gray-600 text-sm mb-2">{bike.description}</p>
-                              <div className="flex justify-between items-center">
-                                <p className="font-bold">₹{bike.price}/day</p>
-                                <button
-                                  onClick={() => handleDeleteBike(bike._id)}
-                                  className="text-red-500 hover:text-red-700"
-                                >
-                                  Delete
-                                </button>
-                              </div>
+                          {sellerBikes.length === 0 ? (
+                            <div className="col-span-full text-center p-8 bg-gray-50 rounded-lg">
+                              <p className="text-gray-600">You haven't added any bikes yet.</p>
+                              <p className="text-gray-600">Use the form above to add your first bike!</p>
                             </div>
-                          ))}
+                          ) : (
+                            sellerBikes.map((bike) => (
+                              <div
+                                key={bike._id}
+                                className="bg-white p-4 rounded-lg shadow border border-gray-200"
+                              >
+                                <img
+                                  src={bike.image}
+                                  alt={bike.name}
+                                  className="w-full h-48 object-cover rounded-lg mb-4"
+                                />
+                                <h4 className="font-semibold text-lg">{bike.name}</h4>
+                                <p className="text-gray-600 text-sm mb-2">{bike.description}</p>
+                                <div className="flex justify-between items-center">
+                                  <p className="font-bold">₹{bike.price}/day</p>
+                                  <button
+                                    onClick={() => handleDeleteBike(bike._id)}
+                                    className="text-red-500 hover:text-red-700"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            ))
+                          )}
                         </div>
                       )}
                     </div>
@@ -321,29 +350,36 @@ export default function SellerAccount() {
                         <p>Loading accessories...</p>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {sellerAccessories.map((accessory) => (
-                            <div
-                              key={accessory._id}
-                              className="bg-white p-4 rounded-lg shadow border border-gray-200"
-                            >
-                              <img
-                                src={accessory.image}
-                                alt={accessory.name}
-                                className="w-full h-48 object-cover rounded-lg mb-4"
-                              />
-                              <h4 className="font-semibold text-lg">{accessory.name}</h4>
-                              <p className="text-gray-600 text-sm mb-2">{accessory.description}</p>
-                              <div className="flex justify-between items-center">
-                                <p className="font-bold">₹{accessory.price}/day</p>
-                                <button
-                                  onClick={() => handleDeleteAccessory(accessory._id)}
-                                  className="text-red-500 hover:text-red-700"
-                                >
-                                  Delete
-                                </button>
-                              </div>
+                          {sellerAccessories.length === 0 ? (
+                            <div className="col-span-full text-center p-8 bg-gray-50 rounded-lg">
+                              <p className="text-gray-600">You haven't added any accessories yet.</p>
+                              <p className="text-gray-600">Use the form above to add your first accessory!</p>
                             </div>
-                          ))}
+                          ) : (
+                            sellerAccessories.map((accessory) => (
+                              <div
+                                key={accessory._id}
+                                className="bg-white p-4 rounded-lg shadow border border-gray-200"
+                              >
+                                <img
+                                  src={accessory.image}
+                                  alt={accessory.name}
+                                  className="w-full h-48 object-cover rounded-lg mb-4"
+                                />
+                                <h4 className="font-semibold text-lg">{accessory.name}</h4>
+                                <p className="text-gray-600 text-sm mb-2">{accessory.description}</p>
+                                <div className="flex justify-between items-center">
+                                  <p className="font-bold">₹{accessory.price}/day</p>
+                                  <button
+                                    onClick={() => handleDeleteAccessory(accessory._id)}
+                                    className="text-red-500 hover:text-red-700"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            ))
+                          )}
                         </div>
                       )}
                     </div>

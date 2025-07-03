@@ -94,7 +94,7 @@ export default function Account() {
                 if (response.data.token) {
                     localStorage.setItem('token', response.data.token);
                     login(response.data.user);
-                    navigate(response.data.user.role === 'seller' ? '/seller' : '/customer');
+                    navigate(response.data.user.role === 'renter' ? '/renter' : '/customer');
                 }
             } else {
                 // Register
@@ -108,7 +108,7 @@ export default function Account() {
                 if (response.data.token) {
                     localStorage.setItem('token', response.data.token);
                     login(response.data.user);
-                    navigate(response.data.user.role === 'seller' ? '/seller' : '/customer');
+                    navigate(response.data.user.role === 'renter' ? '/renter' : '/customer');
                 }
             }
         } catch (err) {
@@ -233,7 +233,7 @@ export default function Account() {
                                     className="w-full p-4 bg-white bg-opacity-20 rounded-xl border border-white text-white focus:outline-none focus:ring-2 focus:ring-white"
                                 >
                                     <option value="customer" className="text-black">Customer</option>
-                                    <option value="seller" className="text-black">Seller</option>
+                                    <option value="renter" className="text-black">Renter</option>
                                 </select>
                             </div>
 

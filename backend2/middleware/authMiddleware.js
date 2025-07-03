@@ -7,7 +7,7 @@ const authenticate = (roles = []) => (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
-        if (roles.length && !roles.includes(decoded.role)) {
+        if (roles.length && !roles.includes(decoded.role.replace('seller', 'renter'))) {
             return res.status(403).json({ message: 'Forbidden' });
         }
         next();
